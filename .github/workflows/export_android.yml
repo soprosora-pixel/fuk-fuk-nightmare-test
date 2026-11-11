@@ -37,9 +37,23 @@ jobs:
         run: |
           keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android -keystore debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
 
+      - name: Configure Godot Editor Settings for Android
+        run: |
+          mkdir -p ~/.config/godot
+          cat << 'EOF' > ~/.config/godot/editor_settings-4.3.tres
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/android_sdk_path = "$ANDROID_HOME"
+          export/android/debug_keystore = "${{ github.workspace }}/debug.keystore"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
+          export/android/force_system_user = false
+          EOF
+          # Substituir a variável de ambiente literal
+          sed -i "s|\$ANDROID_HOME|$ANDROID_HOME|g" ~/.config/godot/editor_settings-4.3.tres
+
       - name: Export Android APK
-        env:
-          ANDROID_HOME: ${{ env.ANDROID_HOME }}
         run: |
           mkdir -p build/android
           godot --headless --export-debug "Android Debug" build/android/fuk_fuk_test_debug.apk
