@@ -1,0 +1,42 @@
+[gd_scene load_steps=5 format=3 uid="uid://teststage_fukfuk"]
+
+[ext_resource type="Script" path="res://player.gd" id="1_player"]
+[ext_resource type="Script" path="res://enemy.gd" id="2_enemy"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_foot"]
+size = Vector2(40, 16)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]
+size = Vector2(48, 32)
+
+[node name="TestStage2D" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Player" type="CharacterBody2D" parent="." groups=["player"]]
+position = Vector2(300, 400)
+y_sort_enabled = true
+script = ExtResource("1_player")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource("RectangleShape2D_foot")
+
+[node name="Visuals" type="Node2D" parent="Player"]
+
+[node name="AttackArea" type="Area2D" parent="Player/Visuals"]
+position = Vector2(30, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player/Visuals/AttackArea"]
+shape = SubResource("RectangleShape2D_hit")
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+position_smoothing_enabled = true
+
+[node name="Enemy" type="CharacterBody2D" parent="." groups=["enemies"]]
+position = Vector2(700, 400)
+y_sort_enabled = true
+script = ExtResource("2_enemy")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy"]
+shape = SubResource("RectangleShape2D_foot")
+
+[node name="Visuals" type="Node2D" parent="Enemy"]
