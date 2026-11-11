@@ -20,27 +20,32 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Setup Godot & Android Export Templates
+        run: |
+          mkdir -p ~/.local/share/godot/export_templates/4.3.stable
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
+          unzip -q Godot_v4.3-stable_linux.x86_64.zip
+          mv Godot_v4.3-stable_linux.x86_64 godot
+          chmod +x godot
+          sudo mv godot /usr/local/bin/
+
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
+          unzip -q Godot_v4.3-stable_export_templates.tpz
+          mv templates/* ~/.local/share/godot/export_templates/4.3.stable/
 
       - name: Generate Debug Keystore
         run: |
           keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android -keystore debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
 
-      - name: Godot Android Export
-        uses: firebelley/godot-export@v6.0.0
-        with:
-          godot_version: 4.3
-          export_debug: true
-          relative_project_path: ./
+      - name: Export Android APK
         env:
-          EXPORT_PRESET_NAME: "Android Debug"
-          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/debug.keystore
-          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
-          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+        run: |
+          mkdir -p build/android
+          godot --headless --export-debug "Android Debug" build/android/fuk_fuk_test_debug.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: FukFukNightmare-Debug-APK
-          path: build/android/*.apk
+          path: build/android/fuk_fuk_test_debug.apk
